@@ -23,15 +23,15 @@
 
 ---///* 2. Create query to truncate and load tblComplianceDailyStatus table *///---
 
-	Truncate table Metrics_Compliance_Daily_Status
+	TRUNCATE TABLE Metrics_Compliance_Daily_Status
 
 	;WITH CTE1 AS (SELECT DISTINCT Metric, [Date], CompliantQTY, NoncompliantQTY, DialQTY,
 	SUM(CompliantQTY) OVER (PARTITION BY Metric, YEAR(Date), MONTH([Date])) AS 'Total_Compliant',
 	SUM(NoncompliantQTY) OVER (PARTITION BY Metric, YEAR(Date), MONTH([Date])) AS 'Total_NonCompliant',
 	SUM(DialQTY) OVER (PARTITION BY Metric, YEAR(Date), MONTH([Date])) AS 'Total_Metrics'
 	FROM Metrics_RealTime_Dashboard),   ---[CTE1. A SELECT statement aggregates (SUMs) the total compliant, total noncompliant, and total metrics columns,
-										          ---partitioned over each metric, month and year row, from the Metrics_RealTime_Dashboard source 
-											      ---table to generate the numerator and denominator for the final cumulative daily compliance rate (%) formula].
+					    ---partitioned over each metric, month and year row, from the Metrics_RealTime_Dashboard source 
+					    ---table to generate the numerator and denominator for the final cumulative daily compliance rate (%) formula].
 	CTE2 AS (
 	SELECT DISTINCT GETDATE() AS [AddDate], [Date], a.Metric AS Metric_Code, 
 	c.MetricDescription AS Metric_Description, CAST(ROUND(Total_Compliant * 100 / (NULLIF(Total_Metrics,0)), 2) AS DECIMAL(5,2)) AS Compliance_Rate, 
@@ -40,10 +40,10 @@
 	LEFT JOIN Compliance_Metrics_Info b
 	ON a.[Metric] = b.Metric
 	LEFT JOIN All_ReportOwner c
-	ON a.[Metric] = c. Metric)     ---[CTE2. SELECT statement calculates the cumulative daily compliance rate (%, in rounded, decimal format) from the totals stored in 
-								   ---the CTE1 table (if values in the Metric_Totals column are '0' Compliance_Rate then values will be treated as NULLS to prevent a 
-								   ---divide by zero error) and appendS metric info data (department ownership and report link info) from the Compliance_Metrics_Info 
-								   ---and All_ReportOwner tables via two LEFT JOINS.]
+	ON a.[Metric] = c. Metric)     ---[CTE2. SELECT statement calculates the cumulative daily compliance rate (%, in rounded, decimal format) from the 
+				       ---totals stored in the CTE1 table (if values in the Metric_Totals column are '0' Compliance_Rate then values will 
+				       ---be treated as NULLS to prevent a divide by zero error) and appendS metric info data (department ownership and report 
+				       ---link info) from the Compliance_Metrics_Info and All_ReportOwner tables via two LEFT JOINS.]
 	INSERT INTO Metrics_Compliance_Daily_Status (AddDate, [Date], Metric_Code, Metric_Description, Compliance_Rate, Goal, Compliance_Status, Report_Link)
 	SELECT DISTINCT AddDate, [Date], Metric_Code, Metric_Description, Compliance_Rate, Goal, 
 	CASE WHEN Compliance_Rate >= Goal THEN 'YES'
@@ -53,13 +53,14 @@
 	END AS Compliance_Status, Report_Link
 	FROM CTE2
 	WHERE DATE >= CONVERT(VARCHAR(10), DATEADD(YEAR,-2,GETDATE()), 120) 
-	ORDER BY Metric_Code, [Date] DESC   ---[An INSERT INTO statment inserts the data into the final tbl_Metrics_Compliance_Daily_Status table by selecting data from 
-										---the CTE2 table. The select statement creates a new Compliance Status column from the Compliance_Rate column via a CASE statement 
-										---(a Compliance Status column value will be recorded as 'YES' if a value in the Compliance_Rate column is greater than the 95% goal 
-										---value, 'NO' if the Compliance_Rate value is less than the 95% goal value, and '-' if values in the Goal or Compliance_Rate column 
-										---are NULL), appends metric information to each output record from two tables via a LEFT JOIN, restricts the data to the last 
-										---two years via a WHERE clause, and sorts the final results set via an ORDER BY function by the Metric_Code and Date columns in 
-										---descending order.]
+	ORDER BY Metric_Code, [Date] DESC   ---[An INSERT INTO statment inserts the data into the final tbl_Metrics_Compliance_Daily_Status table by 
+					    ---selecting data from the CTE2 table. The select statement creates a new Compliance Status column from 
+					    ---the Compliance_Rate column via a CASE statement (a Compliance Status column value will be recorded as 'YES' 
+					    ---if a value in the Compliance_Rate column is greater than the 95% goal value, 'NO' if the Compliance_Rate value 
+					    ---is less than the 95% goal value, and '-' if values in the Goal or Compliance_Rate column are NULL), appends 
+					    ---metric information to each output record from two tables via a LEFT JOIN, restricts the data to the last two 
+					    ---years via a WHERE clause, and sorts the final results set via an ORDER BY function by the Metric_Code and Date 
+					    ---columns in descending order.]
 
 ---///* 3. Query the final table *///---
 
