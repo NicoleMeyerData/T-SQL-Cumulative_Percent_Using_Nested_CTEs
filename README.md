@@ -1,9 +1,9 @@
 # T-SQL-Cumulative_Percent_Using_Nested_CTEs
-This is an example of a query written in T-SQL to generate a daily cumulative % for a set of metrics using nested CTE tables
+This is an example of a query written in T-SQL to generate a daily cumulative % for a set of metrics using nested CTEs
 
 ---/// * SQL Functions Referenced ///*---
 
----Nested CTE Tables
+---Nested CTEs
 
 ---Windows Functions (PARTITION BY, ORDER BY)
 
