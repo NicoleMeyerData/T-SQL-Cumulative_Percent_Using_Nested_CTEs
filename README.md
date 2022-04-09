@@ -4,12 +4,20 @@ This is an example of a query written in T-SQL to generate a daily cumulative % 
 ---/// * SQL Functions Referenced ///*---
 
 ---Nested CTE Tables
+
 ---Windows Functions (PARTITION BY, ORDER BY)
+
 ---Aggregates (SUM, GROUP, OVER)
+
 ---Mathematical Functions (ROUND)
+
 ---Conversions (CAST, CONVERT)
+
 ---Date & Time Functions (GETDATE, DATEADD, MONTH, YEAR)
+
 ---Expressions (NULLIF, CASE)
+
 ---Predicates (IS NULL, BETWEEN)
+
 ---Joins (LEFT JOIN) 
 
