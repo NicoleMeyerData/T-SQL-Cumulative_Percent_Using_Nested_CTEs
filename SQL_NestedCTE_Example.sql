@@ -21,7 +21,7 @@
 	Compliance_Status NVARCHAR(50) NULL, 
 	Report_Link NVARCHAR(MAX) NULL)
 
----///* 2. Create query to truncate and load tblComplianceDailyStatus table *///---
+---///* 2. Create query to truncate and load the Metrics_Compliance_Daily_Status table *///---
 
 	TRUNCATE TABLE Metrics_Compliance_Daily_Status ---[Truncate clears all rows in the existing table]
 
